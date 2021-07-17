@@ -1,19 +1,21 @@
-import java.lang.Thread.{currentThread, sleep}
+import java.lang.Thread.currentThread
 import java.time.LocalDateTime
+import scala.collection.mutable
 
 object Application {
 
   def main(args: Array[String]): Unit = {
 
-    val minhaThread: Runnable = () => {
-      while (true) {
-        println(s"running ${LocalDateTime.now} at ${currentThread().getName}")
-        sleep(1000L)
-      }
+    println(s"executando (inicio do processamento) ${LocalDateTime.now}")
+
+    val stack = mutable.Stack[Int]()
+    stack.pushAll(List.range(1,9000000))
+
+    while (stack.nonEmpty) {
+      stack.pop()
     }
 
-    val thread = new Thread(minhaThread)
-    thread.run()
+    println(s"executando (termino do processamento) ${LocalDateTime.now}")
 
   }
 
