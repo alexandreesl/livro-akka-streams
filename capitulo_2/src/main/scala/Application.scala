@@ -6,6 +6,21 @@ import scala.concurrent.duration.MINUTES
 
 object Application {
 
+  class Recurso(val name: String) {
+    def preparar(recurso: Recurso): Unit = {
+      synchronized {
+        println(s"sou ${name} e estou me preparando para utilizar ${recurso.name}")
+        recurso.utilizando(this)
+      }
+    }
+
+    def utilizando(recurso: Recurso): Unit = {
+      synchronized {
+        println(s"sou ${name} e estou utilizando ${recurso.name}")
+      }
+    }
+  }
+
   def main(args: Array[String]): Unit = {
 
     singleThread
@@ -16,6 +31,23 @@ object Application {
 
     sharedAtomicVar
 
+    deadlock
+
+  }
+
+  private def deadlock = {
+    val recursoA = new Recurso("Recurso A")
+    val recursoB = new Recurso("Recurso B")
+    new Thread(new Runnable() {
+      override def run(): Unit = {
+        recursoA.preparar(recursoB)
+      }
+    }).start()
+    new Thread(new Runnable() {
+      override def run(): Unit = {
+        recursoB.preparar(recursoA)
+      }
+    }).start()
   }
 
   private def sharedAtomicVar = {
