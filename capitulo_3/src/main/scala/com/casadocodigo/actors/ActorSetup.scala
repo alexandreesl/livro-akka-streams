@@ -8,11 +8,9 @@ object ActorSetup {
 
   def apply(): Behavior[NotUsed] = Behaviors.setup {
     contexto =>
-
       Behaviors.receiveSignal {
         case (_, Terminated(_)) =>
           Behaviors.stopped
       }
-
   }
 }
