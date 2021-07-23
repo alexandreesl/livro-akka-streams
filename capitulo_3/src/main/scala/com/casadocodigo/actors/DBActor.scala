@@ -5,7 +5,7 @@ import akka.actor.typed.scaladsl.Behaviors
 
 object DBActor {
 
-  case class MensagemBanco(val nome: String, val documento: String)
+  case class MensagemBanco(nome: String, documento: String)
 
   def apply(): Behavior[MensagemBanco] = Behaviors.receive {
     (contexto, mensagem) =>

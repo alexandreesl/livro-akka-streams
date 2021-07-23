@@ -1,6 +1,6 @@
 import akka.actor.typed.ActorSystem
-import com.casadocodigo.actors.{ActorSetup, DBActor}
-import com.casadocodigo.actors.DBActor.MensagemBanco
+import com.casadocodigo.actors.APIActor.MensagemAPI
+import com.casadocodigo.actors.{APIActor, ActorSetup}
 
 object Application {
 
@@ -8,9 +8,9 @@ object Application {
 
     val system = ActorSystem(ActorSetup(), "MyActorSystem")
 
-    val atorDB = system.systemActorOf(DBActor(),"DBActor")
+    val atorDB = system.systemActorOf(APIActor(), "APIActor")
 
-    atorDB ! MensagemBanco(nome = "teste", documento = "123456")
+    atorDB ! MensagemAPI(nome = "teste", documento = "123456")
 
   }
 
