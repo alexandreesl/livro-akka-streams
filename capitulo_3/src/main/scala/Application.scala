@@ -1,6 +1,7 @@
 import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import com.casadocodigo.actors.APIActor.MensagemAPI
-import com.casadocodigo.actors.{APIActor, ActorSetup}
+import com.casadocodigo.actors.{APIActor, APIClassActor, ActorSetup}
 
 object Application {
 
@@ -8,9 +9,16 @@ object Application {
 
     val system = ActorSystem(ActorSetup(), "MyActorSystem")
 
-    val atorDB = system.systemActorOf(APIActor(), "APIActor")
+    val atorAPI = system.systemActorOf(APIActor(), "APIActor")
 
-    atorDB ! MensagemAPI(nome = "teste", documento = "123456")
+    atorAPI ! MensagemAPI(nome = "teste", documento = "123456")
+
+    val atorClassAPI = system.systemActorOf(Behaviors.setup {
+      contexto: ActorContext[MensagemAPI] =>
+        new APIClassActor(contexto)
+    }, "APIClassActor")
+
+    atorClassAPI ! MensagemAPI(nome = "teste 2", documento = "123456789")
 
   }
 
