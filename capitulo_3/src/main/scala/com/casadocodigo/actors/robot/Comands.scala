@@ -5,10 +5,10 @@ import java.util.UUID
 
 sealed trait ComandoDeMovimento
 
-trait MoverParaFrente extends ComandoDeMovimento
-trait MoverParaTras extends ComandoDeMovimento
-trait MoverParaEsquerda extends ComandoDeMovimento
-trait MoverParaDireita extends ComandoDeMovimento
+case class MoverParaFrente() extends ComandoDeMovimento
+case class MoverParaTras() extends ComandoDeMovimento
+case class MoverParaEsquerda() extends ComandoDeMovimento
+case class MoverParaDireita() extends ComandoDeMovimento
 
 sealed case class Coleta(UUID: UUID, peso: Double)
 
