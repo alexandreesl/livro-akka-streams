@@ -20,6 +20,8 @@ object MoveRobotActor {
         case MoverParaDireita() =>
           contexto.log.info(s"Robô movido para a direita com sucesso!")
           Behaviors.same
+
+
       }
   }
 
