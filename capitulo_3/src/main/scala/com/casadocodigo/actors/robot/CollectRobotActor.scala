@@ -9,15 +9,14 @@ object CollectRobotActor {
     Behaviors.setup { contexto =>
 
       val refAtorDeTransmissao = contexto.spawn(TransmitRobotActor(), "TransmitRobotActor")
-      val refAtorDeTransmissaoDeEmergancia = contexto.spawn(transmissaoDeEmergancia(buffer), "EmergencyTransmitActor")
 
       Behaviors.receive {
         (contexto, mensagem) =>
-          contexto.watch(refAtorDeTransmissaoDeEmergancia)
           mensagem match {
             case Coletar(_) =>
               if (buffer.isFull) {
                 contexto.log.info(s"limite de coletas atingido! Abortando operações!")
+                buffer.unstashAll(transmissor(refAtorDeTransmissao))
                 Behaviors.stopped
               }
               else {
@@ -29,19 +28,7 @@ object CollectRobotActor {
               buffer.unstashAll(transmissor(refAtorDeTransmissao))
               Behaviors.same
           }
-
-
       }
-
-    }
-  }
-
-  private def transmissaoDeEmergancia(stash: StashBuffer[ComandoDeColeta]): Behavior[ComandoDeColeta] = {
-    Behaviors.receiveSignal[ComandoDeColeta] {
-      case (contexto, _) =>
-        val refAtorDeTransmissao = contexto.spawn(TransmitRobotActor(), "TransmitRobotActor")
-        stash.unstashAll(transmissor(refAtorDeTransmissao))
-        Behaviors.same
     }
   }
 
