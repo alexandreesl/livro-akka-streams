@@ -3,6 +3,9 @@ package com.casadocodigo.actors.robot
 import akka.actor.typed.{ActorRef, Behavior, PostStop}
 import akka.actor.typed.scaladsl.Behaviors
 
+import scala.concurrent.duration.DurationInt
+import scala.language.postfixOps
+
 object CollectRobotActor {
 
   def apply(): Behavior[ComandoDeColeta] = Behaviors.withStash(4) { buffer =>
@@ -14,6 +17,7 @@ object CollectRobotActor {
         (contexto, mensagem) =>
           mensagem match {
             case Coletar(_) =>
+              contexto.scheduleOnce(2 hours, refAtorDeTransmissao, IniciarTransmissao())
               if (buffer.isFull) {
                 contexto.log.info(s"limite de coletas atingido! Abortando operações!")
                 buffer.unstashAll(transmissor(refAtorDeTransmissao))
