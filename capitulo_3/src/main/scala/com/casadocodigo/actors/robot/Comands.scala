@@ -15,4 +15,5 @@ sealed case class Coleta(UUID: UUID, peso: Double)
 sealed trait ComandoDeColeta
 
 case class Coletar(coleta: Coleta) extends ComandoDeColeta
-case class Transmitir(coleta: Coleta) extends ComandoDeColeta
+case class IniciarTransmissao() extends ComandoDeColeta
+case class Transmitir(coleta: Coleta)

@@ -1,6 +1,7 @@
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import com.casadocodigo.actors.APIActor.MensagemAPI
+import com.casadocodigo.actors.robot.{CollectRobotActor, MoveRobotActor}
 import com.casadocodigo.actors.{APIActor, APIClassActor, ActorSetup}
 
 object Application {
@@ -19,6 +20,10 @@ object Application {
     }, "APIClassActor")
 
     atorClassAPI ! MensagemAPI(nome = "teste 2", documento = "123456789")
+
+    val atorMovimentoDoRobo = system.systemActorOf(MoveRobotActor(), "MoveRobotActor")
+    val atorColetorDoRobo = system.systemActorOf(CollectRobotActor(), "CollectRobotActor")
+
 
   }
 
