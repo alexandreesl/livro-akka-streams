@@ -10,7 +10,7 @@ object CollectRobotActor {
 
       val refAtorDeTransmissao = contexto.spawn(TransmitRobotActor(), "TransmitRobotActor")
 
-      Behaviors.receive {
+      Behaviors.receive[ComandoDeColeta] {
         (contexto, mensagem) =>
           mensagem match {
             case Coletar(_) =>
@@ -28,6 +28,10 @@ object CollectRobotActor {
               buffer.unstashAll(transmissor(refAtorDeTransmissao))
               Behaviors.same
           }
+      }.receiveSignal {
+        case (context, PostStop) =>
+          context.log.info("Módulo de coletas encerrado. Favor reiniciar o módulo!")
+          Behaviors.same
       }
     }
   }
