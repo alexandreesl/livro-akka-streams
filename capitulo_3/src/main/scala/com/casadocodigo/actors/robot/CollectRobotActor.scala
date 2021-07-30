@@ -17,10 +17,12 @@ object CollectRobotActor {
           mensagem match {
             case Coletar(_) =>
               if (buffer.isFull) {
+                contexto.log.info(s"limite de coletas atingido! Abortando operações!")
                 Behaviors.stopped
               }
               else {
                 buffer.stash(mensagem)
+                contexto.log.info(s"amostra $mensagem coletada com sucesso!")
                 Behaviors.same
               }
             case IniciarTransmissao() =>
@@ -47,10 +49,12 @@ object CollectRobotActor {
     Behaviors.setup {
       _ =>
         Behaviors.receive {
-          (_, mensagem) =>
+          (contexto, mensagem) =>
             mensagem match {
               case Coletar(coleta) =>
                 refAtorDeTransmissao ! Transmitir(coleta)
+              case _ =>
+                contexto.log.info(s"mensagem $mensagem inválida!")
             }
             Behaviors.same
         }
