@@ -1,7 +1,7 @@
 package com.casadocodigo.actors.robot
 
 import akka.actor.typed.{ActorRef, Behavior, PostStop}
-import akka.actor.typed.scaladsl.{Behaviors, StashBuffer}
+import akka.actor.typed.scaladsl.Behaviors
 
 object CollectRobotActor {
 
