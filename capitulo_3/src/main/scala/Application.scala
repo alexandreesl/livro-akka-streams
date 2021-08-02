@@ -14,8 +14,13 @@ object Application {
 
     val system = ActorSystem(ActorSetup(), "MyActorSystem")
 
-    //exemploSimples(system)
+    exemploSimples(system)
 
+    exemploRobo(system)
+
+  }
+
+  private def exemploRobo(system: ActorSystem[NotUsed]) = {
     val atorMovimentoDoRobo = system.systemActorOf(MoveRobotActor(), "MoveRobotActor")
     val atorColetorDoRobo = system.systemActorOf(CollectRobotActor(), "CollectRobotActor")
     atorMovimentoDoRobo ! MoverParaFrente()
@@ -27,7 +32,6 @@ object Application {
     atorColetorDoRobo ! Coletar(Coleta(UUID.randomUUID(), Random.nextDouble()))
     atorColetorDoRobo ! Coletar(Coleta(UUID.randomUUID(), Random.nextDouble()))
     atorColetorDoRobo ! IniciarTransmissao()
-
   }
 
   private def exemploSimples(system: ActorSystem[NotUsed]) = {
