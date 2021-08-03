@@ -19,11 +19,11 @@ object CallerActor {
     Behaviors.receive {
       (contexto, mensagem) =>
         mensagem match {
-          case MensagemProcessamento(dado) =>
+          case MensagemSolicitarProcessamento(dado) =>
             contexto.log.info(s"solicitando o processamento da mensagem $dado!")
             refAtorParavel ! MensagemProcessamento(dado)
             Behaviors.same
-          case MensagemFinalizar() =>
+          case MensagemSolicitarFinalizacao() =>
             contexto.log.info(s"solicitando a finalização do processamento!")
             refAtorParavel ! MensagemFinalizar()
             Behaviors.same
