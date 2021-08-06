@@ -24,9 +24,15 @@ object Application {
       ref ! MensagemSolicitarProcessamento("teste 2")
       ref ! MensagemSolicitarProcessamento("teste 3")
       ref ! MensagemSolicitarFinalizacao()
+      ref ! MensagemSolicitarProcessamento("teste 4")
+      ref ! MensagemSolicitarProcessamento("teste 5")
+      ref ! MensagemSolicitarFinalizacao()
+      ref ! MensagemSolicitarProcessamento("teste 6")
+      ref ! MensagemSolicitarProcessamento("teste 7")
+      ref ! MensagemSolicitarFinalizacao()
+      ref ! MensagemSolicitarProcessamento("teste 8")
+      ref ! MensagemSolicitarProcessamento("teste 9")
+      ref ! MensagemSolicitarProcessamento("teste 10")
     }
-
-
   }
-
 }
