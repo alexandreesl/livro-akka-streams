@@ -9,6 +9,7 @@ object ActorSetup {
     contexto =>
 
       contexto.spawn(CallerActor(), "CallerActor")
+      contexto.spawn(DeadLetterActor(), "DeadLetterActor")
 
       Behaviors.receiveSignal[SpawnProtocol.Command] {
         case (_, Terminated(_)) =>
