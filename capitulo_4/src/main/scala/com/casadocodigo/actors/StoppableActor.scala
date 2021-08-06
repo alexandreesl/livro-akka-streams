@@ -1,6 +1,6 @@
 package com.casadocodigo.actors
 
-import akka.actor.typed.{Behavior, SupervisorStrategy}
+import akka.actor.typed.{Behavior, PostStop, PreRestart, SupervisorStrategy, Terminated}
 import akka.actor.typed.scaladsl.Behaviors
 
 import scala.concurrent.duration.DurationInt
@@ -22,7 +22,7 @@ object StoppableActor {
     .onFailure[ExcecaoDeProcessamento](SupervisorStrategy.resume))
     .onFailure[ExcecaoDeFinalizacao](SupervisorStrategy.restartWithBackoff(1 second, 1 minute, 0.5))
 
-  def behavior(): Behavior[Mensagem] = Behaviors.receive {
+  def behavior(): Behavior[Mensagem] = Behaviors.receive[Mensagem] {
     (contexto, mensagem) =>
       mensagem match {
         case MensagemProcessamento(dado) =>
@@ -33,5 +33,12 @@ object StoppableActor {
           contexto.log.info(s"finalizando o processamento!")
           throw ExcecaoDeFinalizacao("Finalizando!")
       }
+  }.receiveSignal {
+    case (context, PostStop) =>
+      context.log.info("Evento de pós-parada do ator!")
+      Behaviors.same
+    case (context, PreRestart) =>
+      context.log.info("Evento de pré-restart do ator!")
+      Behaviors.same
   }
 }
