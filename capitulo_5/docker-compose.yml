@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: teste
+  api:
+    image: akka-streams:1.0
+    ports:
+      - "8080:8080"
