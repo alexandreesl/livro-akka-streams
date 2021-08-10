@@ -5,6 +5,7 @@ services:
     environment:
       POSTGRES_PASSWORD: teste
   api:
-    image: akka-streams:1.0
+    image: akka-api:1.0
+    tty: true
     ports:
       - "8080:8080"
