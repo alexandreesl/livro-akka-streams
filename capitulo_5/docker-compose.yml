@@ -6,6 +6,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: teste
+      POSTGRES_DB: ecommerce
   api:
     image: akka-api:1.0
     tty: true

@@ -1,20 +1,35 @@
 package com.casadocodigo.repository
 
+import com.casadocodigo.repository.DBConnection.db
+import slick.dbio.DBIO
 import slick.lifted.Tag
 import slick.jdbc.PostgresProfile.api._
 
-class RepositorioDeProdutos extends DBConnection {
+import scala.concurrent.Future
 
-  class Produto(tag: Tag) extends Table[(Long, String, Double, Double)](tag, "produto") {
-    def id = column[Long]("id")
+case class Produto(id: Long, descricao: String, preco: Double, quantidade: Double)
 
-    def descricao = column[String]("descricao")
+class ProdutoSchema(tag: Tag) extends Table[Produto](tag, "produto") {
+  def id = column[Long]("id")
 
-    def preco = column[Double]("preco")
+  def descricao = column[String]("descricao")
 
-    def quantidade = column[Double]("quantidade")
+  def preco = column[Double]("preco")
 
-    def * = (id, descricao, preco, quantidade)
+  def quantidade = column[Double]("quantidade")
+
+  def * = (id, descricao, preco, quantidade) <> (Produto.tupled, Produto.unapply)
+}
+
+object RepositorioDeProdutos extends DBConnection {
+  private val tabela = TableQuery[ProdutoSchema]
+  val schema = tabela.schema
+  db.run(DBIO.seq(
+    schema.createIfNotExists
+  ))
+
+  def criar(produto: Produto): Future[Produto] = run {
+    (tabela returning tabela) += produto
   }
 
 }
