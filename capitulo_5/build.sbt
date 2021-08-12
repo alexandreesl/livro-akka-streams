@@ -6,6 +6,7 @@ version := "1.0"
 scalaVersion := "2.13.6"
 val AkkaVersion = "2.6.15"
 val akkaHttpVersion = "10.2.6"
+val slickVersion = "3.3.3"
 
 dockerExposedPorts ++= Seq(8080)
 
@@ -30,6 +31,7 @@ libraryDependencies ++= Seq(
 
 // dependencias de banco
 libraryDependencies ++= Seq(
-  "com.typesafe.slick" %% "slick" % "3.3.3",
+  "com.typesafe.slick" %% "slick" % slickVersion,
+  "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
   "org.postgresql" % "postgresql" % "42.2.23"
 )

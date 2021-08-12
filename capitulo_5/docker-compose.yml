@@ -9,3 +9,7 @@ services:
     tty: true
     ports:
       - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PASS: teste
+      ENVIRONMENT: prod
