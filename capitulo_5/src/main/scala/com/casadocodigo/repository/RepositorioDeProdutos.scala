@@ -10,7 +10,7 @@ import scala.concurrent.Future
 case class Produto(id: Long, descricao: String, preco: Double, quantidade: Double)
 
 class ProdutoSchema(tag: Tag) extends Table[Produto](tag, "produto") {
-  def id = column[Long]("id")
+  def id = column[Long]("id", O.PrimaryKey)
 
   def descricao = column[String]("descricao")
 
