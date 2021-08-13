@@ -4,9 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import com.casadocodigo.repository.DBConnection.db
 import com.casadocodigo.repository.{Produto, RepositorioDeProdutos}
-import slick.dbio.DBIO
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
