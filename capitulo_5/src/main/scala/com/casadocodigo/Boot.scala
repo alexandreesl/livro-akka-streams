@@ -23,10 +23,6 @@ object Boot extends App {
     }
 
   val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(route)
-  RepositorioDeProdutos.criar(Produto(1, "abc", 1, 1)).onComplete(
-    p =>
-      println(p)
-  )
 
   StdIn.readLine()
   bindingFuture
