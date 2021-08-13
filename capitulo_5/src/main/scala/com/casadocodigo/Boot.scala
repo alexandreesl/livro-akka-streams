@@ -25,16 +25,6 @@ object Boot extends App {
 
   val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(route)
 
-  Source.fromPublisher(RepositorioDeClientes.buscarPorId(2))
-    .runForeach(cli => {
-      println(cli)
-      cli.comEnderecos().foreach(
-        end => {
-          println(end)
-        }
-      )
-    })
-
   StdIn.readLine()
   bindingFuture
     .flatMap(_.unbind())
