@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
+import akka.stream.scaladsl.Source
 import com.casadocodigo.repository.{Cliente, Endereco, Produto, RepositorioDeClientes, RepositorioDeProdutos}
 
 import scala.concurrent.ExecutionContextExecutor
@@ -24,6 +25,15 @@ object Boot extends App {
 
   val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(route)
 
+  Source.fromPublisher(RepositorioDeClientes.buscarPorId(2))
+    .runForeach(cli => {
+      println(cli)
+      cli.comEnderecos().foreach(
+        end => {
+          println(end)
+        }
+      )
+    })
 
   StdIn.readLine()
   bindingFuture
