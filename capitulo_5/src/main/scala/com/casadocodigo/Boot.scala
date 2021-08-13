@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import com.casadocodigo.repository.{Produto, RepositorioDeProdutos}
+import com.casadocodigo.repository.{Cliente, Endereco, Produto, RepositorioDeClientes, RepositorioDeProdutos}
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
@@ -23,6 +23,10 @@ object Boot extends App {
     }
 
   val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(route)
+
+  RepositorioDeClientes.criar(Cliente(0, "Alexandre"),
+    List(Endereco(0, "rua teste", 123, "São Paulo", "SP", "03423100", 0),
+      Endereco(0, "rua teste 2", 1234, "São Paulo", "SP", "03423100", 0)))
 
   StdIn.readLine()
   bindingFuture
