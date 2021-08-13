@@ -45,4 +45,8 @@ object RepositorioDeProdutos extends DBConnection {
     tabela.filter(_.id === produtoId).result
   }
 
+  def buscarPorDescricao(desc: String): DatabasePublisher[Produto] = stream {
+    tabela.filter(_.descricao like s"%$desc%").result
+  }
+
 }
