@@ -1,6 +1,7 @@
 package com.casadocodigo.repository
 
 import com.casadocodigo.repository.DBConnection.db
+import slick.basic.DatabasePublisher
 import slick.dbio.DBIO
 import slick.lifted.Tag
 import slick.jdbc.PostgresProfile.api._
@@ -30,6 +31,18 @@ object RepositorioDeProdutos extends DBConnection {
 
   def criar(produto: Produto): Future[Produto] = run {
     (tabela returning tabela) += produto
+  }
+
+  def atualizar(produto: Produto): Future[Int] = run {
+    tabela.update(produto)
+  }
+
+  def remover(produtoId: Long): Future[Int] = run {
+    tabela.filter(_.id === produtoId).delete
+  }
+
+  def buscarPorId(produtoId: Long): DatabasePublisher[Produto] = stream {
+    tabela.filter(_.id === produtoId).result
   }
 
 }
