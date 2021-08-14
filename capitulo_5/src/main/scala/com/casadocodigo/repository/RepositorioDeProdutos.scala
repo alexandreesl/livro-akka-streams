@@ -8,7 +8,7 @@ import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
 
-case class Produto(id: Long, descricao: String, preco: Double, quantidade: Double)
+case class Produto(id: Long, descricao: String, preco: Double)
 
 class ProdutoSchema(tag: Tag) extends Table[Produto](tag, "produto") {
   def id = column[Long]("id", O.PrimaryKey)
@@ -17,9 +17,7 @@ class ProdutoSchema(tag: Tag) extends Table[Produto](tag, "produto") {
 
   def preco = column[Double]("preco")
 
-  def quantidade = column[Double]("quantidade")
-
-  def * = (id, descricao, preco, quantidade) <> (Produto.tupled, Produto.unapply)
+  def * = (id, descricao, preco) <> (Produto.tupled, Produto.unapply)
 }
 
 object RepositorioDeProdutos extends DBConnection {

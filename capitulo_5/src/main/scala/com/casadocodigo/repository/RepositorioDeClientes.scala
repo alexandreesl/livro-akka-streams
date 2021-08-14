@@ -68,7 +68,7 @@ object RepositorioDeClientes extends DBConnection {
   }
 
   def atualizar(cliente: Cliente, enderecos: List[Endereco]): Future[Int] = {
-    enderecos.map(end => {
+    enderecos.foreach(end => {
       run(tabelaFilha.update(end))
     })
     run(tabela.update(cliente))
