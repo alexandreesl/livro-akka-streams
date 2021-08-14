@@ -2,7 +2,7 @@ package com.casadocodigo.repository
 
 import com.casadocodigo.Boot.executionContext
 import com.casadocodigo.repository.DBConnection.db
-import com.casadocodigo.repository.RepositorioDePedidos.{maisOutraTabelaFilha, outraTabelaFilha, tabela, tabelaFilha}
+import com.casadocodigo.repository.RepositorioDePedidos.{tabelaRelacionamentoProdutos, tabelaProdutos, tabela, tabelaClientes}
 import slick.basic.DatabasePublisher
 import slick.dbio.DBIO
 import slick.lifted.Tag
@@ -13,14 +13,14 @@ import scala.concurrent.Future
 case class Pedido(id: Long, descricao: String, clienteId: Long) {
   def comCliente(): Future[Seq[Cliente]] = {
     DBConnection.db.run((for {
-      (_, cli) <- tabela filter (_.id === id) join tabelaFilha on (_.clienteId === _.id)
+      (_, cli) <- tabela filter (_.id === id) join tabelaClientes on (_.clienteId === _.id)
     } yield cli).result)
   }
 
   def comProdutos(): Future[Seq[Produto]] = {
     DBConnection.db.run((for {
-      (_, prod) <- (tabela filter (_.id === id) join maisOutraTabelaFilha on
-        (_.id === _.pedidoId)) join outraTabelaFilha on (_._2.produtoId === _.id)
+      (_, prod) <- (tabela filter (_.id === id) join tabelaRelacionamentoProdutos on
+        (_.id === _.pedidoId)) join tabelaProdutos on (_._2.produtoId === _.id)
     } yield prod).result)
   }
 }
@@ -36,7 +36,7 @@ class PedidoProdutoSchema(tag: Tag) extends Table[PedidoProduto](tag, "pedido_pr
 
   def pedido = foreignKey("pedido_produto", pedidoId, tabela)(_.id)
 
-  def produto = foreignKey("produto_pedido", produtoId, outraTabelaFilha)(_.id)
+  def produto = foreignKey("produto_pedido", produtoId, tabelaProdutos)(_.id)
 
   def * = (pedidoId, produtoId, quantidade) <> (PedidoProduto.tupled, PedidoProduto.unapply)
 }
@@ -48,25 +48,25 @@ class PedidoSchema(tag: Tag) extends Table[Pedido](tag, "pedido") {
 
   def clienteId = column[Long]("cliente_id")
 
-  def cliente = foreignKey("cliente_pedido", clienteId, tabelaFilha)(_.id)
+  def cliente = foreignKey("cliente_pedido", clienteId, tabelaClientes)(_.id)
 
   def * = (id, descricao, clienteId) <> (Pedido.tupled, Pedido.unapply)
 }
 
 object RepositorioDePedidos extends DBConnection {
-  val maisOutraTabelaFilha = TableQuery[PedidoProdutoSchema]
-  val outraTabelaFilha = TableQuery[ProdutoSchema]
-  val tabelaFilha = TableQuery[ClienteSchema]
+  val tabelaRelacionamentoProdutos = TableQuery[PedidoProdutoSchema]
+  val tabelaProdutos = TableQuery[ProdutoSchema]
+  val tabelaClientes = TableQuery[ClienteSchema]
   val tabela = TableQuery[PedidoSchema]
   db.run(DBIO.seq(
     tabela.schema.createIfNotExists,
-    maisOutraTabelaFilha.schema.createIfNotExists
+    tabelaRelacionamentoProdutos.schema.createIfNotExists
   ))
 
   def criar(pedido: Pedido, produtos: List[PedidoProduto]): Future[(Pedido, Option[Int])] = {
     val commands = for {
       ped <- tabela returning tabela += pedido
-      items <- maisOutraTabelaFilha ++= produtos.map(prd => {
+      items <- tabelaRelacionamentoProdutos ++= produtos.map(prd => {
         prd.copy(pedidoId = ped.id)
       })
     } yield (ped, items)
