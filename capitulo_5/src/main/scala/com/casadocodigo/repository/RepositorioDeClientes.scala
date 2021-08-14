@@ -2,7 +2,7 @@ package com.casadocodigo.repository
 
 import com.casadocodigo.Boot.executionContext
 import com.casadocodigo.repository.DBConnection.db
-import com.casadocodigo.repository.RepositorioDeClientes.{tabela, tabelaFilha}
+import com.casadocodigo.repository.RepositorioDeClientes.{tabela, tabelaFilha, tabelaPedidos}
 import slick.basic.DatabasePublisher
 import slick.dbio.DBIO
 import slick.lifted.Tag
@@ -15,6 +15,12 @@ case class Cliente(id: Long, nome: String) {
     DBConnection.db.run((for {
       (_, end) <- tabela filter (_.id === id) join tabelaFilha on (_.id === _.clienteId)
     } yield end).result)
+  }
+
+  def comPedidos(): Future[Seq[Pedido]] = {
+    DBConnection.db.run((for {
+      (_, ped) <- tabela filter (_.id === id) join tabelaPedidos on (_.id === _.clienteId)
+    } yield ped).result)
   }
 }
 
@@ -50,6 +56,7 @@ class EnderecoSchema(tag: Tag) extends Table[Endereco](tag, "endereco") {
 }
 
 object RepositorioDeClientes extends DBConnection {
+  val tabelaPedidos = TableQuery[PedidoSchema]
   val tabelaFilha = TableQuery[EnderecoSchema]
   val tabela = TableQuery[ClienteSchema]
   db.run(DBIO.seq(
