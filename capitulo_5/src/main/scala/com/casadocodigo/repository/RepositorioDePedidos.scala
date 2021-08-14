@@ -59,16 +59,17 @@ object RepositorioDePedidos extends DBConnection {
   val tabelaFilha = TableQuery[ClienteSchema]
   val tabela = TableQuery[PedidoSchema]
   db.run(DBIO.seq(
-    tabela.schema.createIfNotExists
+    tabela.schema.createIfNotExists,
+    maisOutraTabelaFilha.schema.createIfNotExists
   ))
 
-  def criar(pedido: Pedido, produtos: List[PedidoProduto]): Future[Pedido] = {
+  def criar(pedido: Pedido, produtos: List[PedidoProduto]): Future[(Pedido, Option[Int])] = {
     val commands = for {
       ped <- tabela returning tabela += pedido
-      _ <- maisOutraTabelaFilha ++= produtos.map(prd => {
+      items <- maisOutraTabelaFilha ++= produtos.map(prd => {
         prd.copy(pedidoId = ped.id)
       })
-    } yield ped
+    } yield (ped, items)
     run(commands)
   }
 
