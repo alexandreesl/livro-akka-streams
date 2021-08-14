@@ -64,13 +64,13 @@ object RepositorioDeClientes extends DBConnection {
     tabelaFilha.schema.createIfNotExists
   ))
 
-  def criar(cliente: Cliente, enderecos: List[Endereco]): Future[Option[Int]] = {
+  def criar(cliente: Cliente, enderecos: List[Endereco]): Future[(Cliente, Option[Int])] = {
     val commands = for {
       cliente <- tabela returning tabela += cliente
       endrs <- tabelaFilha ++= enderecos.map(end => {
         end.copy(clienteId = cliente.id)
       })
-    } yield endrs
+    } yield (cliente, endrs)
     run(commands)
   }
 
