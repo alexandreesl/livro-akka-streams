@@ -4,8 +4,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.stream.scaladsl.Source
-import com.casadocodigo.repository.{Cliente, Endereco, Pedido, PedidoProduto, Produto, RepositorioDeClientes, RepositorioDePedidos, RepositorioDeProdutos}
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
