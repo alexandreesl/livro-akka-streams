@@ -85,8 +85,10 @@ object RepositorioDeClientes extends DBConnection {
     tabela.filter(_.id === clienteId).delete
   }
 
-  def buscarPorId(clienteId: Long): DatabasePublisher[Cliente] = stream {
-    tabela.filter(_.id === clienteId).result
+  def buscarPorId(clienteId: Long): Future[DatabasePublisher[Cliente]] = Future {
+    stream {
+      tabela.filter(_.id === clienteId).result
+    }
   }
 
 }

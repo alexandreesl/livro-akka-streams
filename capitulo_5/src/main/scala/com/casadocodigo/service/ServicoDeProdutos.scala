@@ -53,8 +53,8 @@ object ServicoDeProdutos {
               replyTo ! RespostaGerenciamentoDeProdutoFalha()
           }
           Behaviors.same
-        case MensagemRemoverProduto(produtoId, replyTo) =>
-          RepositorioDeProdutos.remover(produtoId).onComplete {
+        case MensagemRemoverProduto(id, replyTo) =>
+          RepositorioDeProdutos.remover(id).onComplete {
             case Success(_) => replyTo ! RespostaGerenciamentoDeProduto()
             case Failure(e) => contexto.log.error(f"erro ao tentar remover o produto: ${e.getMessage}")
               replyTo ! RespostaGerenciamentoDeProdutoFalha()
