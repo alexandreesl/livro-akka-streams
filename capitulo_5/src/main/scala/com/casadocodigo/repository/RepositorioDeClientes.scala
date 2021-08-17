@@ -76,9 +76,9 @@ object RepositorioDeClientes extends DBConnection {
 
   def atualizar(cliente: Cliente, enderecos: List[Endereco]): Future[Int] = {
     enderecos.foreach(end => {
-      run(tabelaFilha.update(end))
+      run(tabelaFilha.filter(_.id === end.id).update(end))
     })
-    run(tabela.update(cliente))
+    run(tabela.filter(_.id === cliente.id).update(cliente))
   }
 
   def remover(clienteId: Long): Future[Int] = run {

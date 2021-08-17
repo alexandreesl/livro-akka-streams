@@ -74,7 +74,7 @@ object RepositorioDePedidos extends DBConnection {
   }
 
   def atualizar(pedido: Pedido): Future[Int] = {
-    run(tabela.update(pedido))
+    run(tabela.filter(_.id === pedido.id).update(pedido))
   }
 
   def remover(pedidoId: Long): Future[Int] = run {

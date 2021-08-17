@@ -33,7 +33,7 @@ object RepositorioDeProdutos extends DBConnection {
   }
 
   def atualizar(produto: Produto): Future[Int] = run {
-    tabela.update(produto)
+    tabela.filter(_.id === produto.id).update(produto)
   }
 
   def remover(produtoId: Long): Future[Int] = run {
