@@ -1,5 +1,6 @@
 package com.casadocodigo.repository
 
+import com.casadocodigo.Boot.executionContext
 import com.casadocodigo.repository.DBConnection.db
 import slick.basic.DatabasePublisher
 import slick.dbio.DBIO
@@ -11,7 +12,7 @@ import scala.concurrent.Future
 case class Produto(id: Long, descricao: String, preco: Double)
 
 class ProdutoSchema(tag: Tag) extends Table[Produto](tag, "produto") {
-  def id = column[Long]("id", O.PrimaryKey)
+  def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
   def descricao = column[String]("descricao")
 
@@ -39,12 +40,16 @@ object RepositorioDeProdutos extends DBConnection {
     tabela.filter(_.id === produtoId).delete
   }
 
-  def buscarPorId(produtoId: Long): DatabasePublisher[Produto] = stream {
-    tabela.filter(_.id === produtoId).result
+  def buscarPorId(produtoId: Long): Future[DatabasePublisher[Produto]] = Future {
+    stream {
+      tabela.filter(_.id === produtoId).result
+    }
   }
 
-  def buscarPorDescricao(desc: String): DatabasePublisher[Produto] = stream {
-    tabela.filter(_.descricao like s"%$desc%").result
+  def buscarPorDescricao(desc: String): Future[DatabasePublisher[Produto]] = Future {
+    stream {
+      tabela.filter(_.descricao like s"%$desc%").result
+    }
   }
 
 }
