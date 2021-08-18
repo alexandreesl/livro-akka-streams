@@ -4,41 +4,31 @@ package com.casadocodigo
 import akka.actor.typed.Scheduler
 import akka.actor.{ActorSystem, typed}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives._
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.typed.scaladsl.AskPattern._
 import akka.util.Timeout
-import com.casadocodigo.repository.{Produto, RepositorioDeProdutos}
+import com.casadocodigo.route.RotasDeProdutos
 import com.casadocodigo.service.ServicoDeProdutos
-import com.casadocodigo.service.ServicoDeProdutos.MensagemCriarProduto
+import com.typesafe.config.{Config, ConfigFactory}
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.DurationInt
 import scala.io.StdIn
-import scala.util.{Failure, Success}
 
 
-object Boot extends App {
+object Boot extends App with RotasDeProdutos {
 
+  implicit val config: Config = ConfigFactory.load(Option(
+    System.getenv("ENVIRONMENT"))
+    .getOrElse(Option(System.getProperty("ENVIRONMENT"))
+      .getOrElse("application")))
   implicit val system: ActorSystem = akka.actor.ActorSystem("ClassicToTypedSystem")
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+  implicit val timeout: Timeout = config.getInt("timeout").seconds
   val typedSystem: typed.ActorSystem[_] = system.toTyped
-  implicit val timeout: Timeout = 3.seconds
   implicit val scheduler: Scheduler = typedSystem.scheduler
+  val atorDeProdutos = typedSystem.systemActorOf(ServicoDeProdutos(), "ServicoDeProdutos")
 
-  val route =
-    path("hello") {
-      get {
-
-        val actor = typedSystem.systemActorOf(ServicoDeProdutos(), "ServicoDeProdutos")
-        val response: Future[ServicoDeProdutos.RespostaProduto] = actor.ask(ref => MensagemCriarProduto(Produto(0, "abc", 1.0), ref))
-        onComplete(response) {
-          case Success(response) => complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, response.toString))
-          case Failure(e) => failWith(e)
-        }
-      }
-    }
+  val route = rotasDeProdutos()
 
   val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(route)
 

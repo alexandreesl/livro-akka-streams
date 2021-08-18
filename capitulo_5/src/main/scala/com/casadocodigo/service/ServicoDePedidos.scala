@@ -2,6 +2,7 @@ package com.casadocodigo.service
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
+import akka.event.slf4j.Logger
 import com.casadocodigo.Boot.executionContext
 import com.casadocodigo.repository.{Pedido, PedidoProduto, RepositorioDePedidos}
 import slick.basic.DatabasePublisher
@@ -10,6 +11,8 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 object ServicoDePedidos {
+
+  val logger = Logger("ServicoDePedidos")
 
   trait MensagemPedido
 
@@ -36,33 +39,33 @@ object ServicoDePedidos {
     .onFailure[Exception](SupervisorStrategy.restart)
 
   def behavior(): Behavior[MensagemPedido] = Behaviors.receive {
-    (contexto, mensagem) =>
+    (_, mensagem) =>
       mensagem match {
         case MensagemCriarPedido(pedido, produtos, replyTo) =>
           RepositorioDePedidos.criar(pedido, produtos).onComplete {
             case Success(_) => replyTo ! RespostaGerenciamentoDePedido()
-            case Failure(e) => contexto.log.error(f"erro ao tentar criar o pedido: ${e.getMessage}")
+            case Failure(e) => logger.error(f"erro ao tentar criar o pedido: ${e.getMessage}")
               replyTo ! RespostaGerenciamentoDePedidoFalha()
           }
           Behaviors.same
         case MensagemAtualizarPedido(pedido, replyTo) =>
           RepositorioDePedidos.atualizar(pedido).onComplete {
             case Success(_) => replyTo ! RespostaGerenciamentoDePedido()
-            case Failure(e) => contexto.log.error(f"erro ao tentar atualizar o pedido: ${e.getMessage}")
+            case Failure(e) => logger.error(f"erro ao tentar atualizar o pedido: ${e.getMessage}")
               replyTo ! RespostaGerenciamentoDePedidoFalha()
           }
           Behaviors.same
         case MensagemRemoverPedido(id, replyTo) =>
           RepositorioDePedidos.remover(id).onComplete {
             case Success(_) => replyTo ! RespostaGerenciamentoDePedido()
-            case Failure(e) => contexto.log.error(f"erro ao tentar remover o pedido: ${e.getMessage}")
+            case Failure(e) => logger.error(f"erro ao tentar remover o pedido: ${e.getMessage}")
               replyTo ! RespostaGerenciamentoDePedidoFalha()
           }
           Behaviors.same
         case MensagemBuscarPedidoPorId(id, replyTo) =>
           RepositorioDePedidos.buscarPorId(id).onComplete {
             case Success(response) => replyTo ! RespostaBuscaDePedido(response)
-            case Failure(e) => contexto.log.error(f"erro ao tentar buscar o pedido: ${e.getMessage}")
+            case Failure(e) => logger.error(f"erro ao tentar buscar o pedido: ${e.getMessage}")
               replyTo ! RespostaBuscaDePedidoFalha()
           }
           Behaviors.same
