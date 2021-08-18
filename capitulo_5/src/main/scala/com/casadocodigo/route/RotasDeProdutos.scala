@@ -18,9 +18,9 @@ import scala.util.{Failure, Success}
 
 trait RotasDeProdutos extends SerializadorJSON {
 
-  def rotasDeProdutos(): Route = criar() ~ atualizar() ~ remover() ~ buscarPorId() ~ buscarPorDescricao()
+  def rotasDeProdutos(): Route = criarProduto() ~ atualizarProduto() ~ removerProduto() ~ buscarPorIdProduto() ~ buscarPorDescricaoProduto()
 
-  def criar(): Route = post {
+  def criarProduto(): Route = post {
     path("produto") {
       entity(as[Produto]) { prod =>
 
@@ -36,7 +36,7 @@ trait RotasDeProdutos extends SerializadorJSON {
     }
   }
 
-  def atualizar(): Route = patch {
+  def atualizarProduto(): Route = patch {
     path("produto") {
       entity(as[Produto]) { prod =>
 
@@ -52,7 +52,7 @@ trait RotasDeProdutos extends SerializadorJSON {
     }
   }
 
-  def remover(): Route = delete {
+  def removerProduto(): Route = delete {
     path("produto" / Segment) { id =>
       val response: Future[ServicoDeProdutos.RespostaProduto] = atorDeProdutos.ask(ref => MensagemRemoverProduto(id.toLong, ref))
       onComplete(response) {
@@ -65,7 +65,7 @@ trait RotasDeProdutos extends SerializadorJSON {
     }
   }
 
-  def buscarPorId(): Route = get {
+  def buscarPorIdProduto(): Route = get {
     path("produto" / "id" / Segment) { id =>
       val response: Future[ServicoDeProdutos.RespostaProduto] = atorDeProdutos.ask(ref => MensagemBuscarProdutoPorId(id.toLong, ref))
       onComplete(response) {
@@ -82,7 +82,7 @@ trait RotasDeProdutos extends SerializadorJSON {
     }
   }
 
-  def buscarPorDescricao(): Route = get {
+  def buscarPorDescricaoProduto(): Route = get {
     path("produto" / "descricao" / Segment) { descricao =>
       val response: Future[ServicoDeProdutos.RespostaProduto] = atorDeProdutos.ask(ref => MensagemBuscarProdutoPorDescricao(descricao, ref))
       onComplete(response) {
