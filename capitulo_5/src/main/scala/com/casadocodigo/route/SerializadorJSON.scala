@@ -4,6 +4,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.casadocodigo.repository.{Cliente, Endereco, Pedido, PedidoProduto, Produto}
 import com.casadocodigo.route.Requisicoes.{RequisicaoCliente, RequisicaoClienteDetalhe, RequisicaoClienteEndereco, RequisicaoPedido, RequisicaoPedidoDetalhe, RequisicaoPedidoItem}
 import com.casadocodigo.route.Respostas.{RespostaBuscaClienteSucesso, RespostaBuscaPedidoSucesso, RespostaBuscaProdutoSucesso, RespostaSucesso}
+import com.casadocodigo.service.ServicoDeEstoque.RespostaConsultaEstoque
 import spray.json.DefaultJsonProtocol
 
 trait SerializadorJSON extends SprayJsonSupport with DefaultJsonProtocol {
@@ -23,6 +24,7 @@ trait SerializadorJSON extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val respostaProdutoBuscarPorIdFormat = jsonFormat1(RespostaBuscaProdutoSucesso)
   implicit val respostaPedidoBuscarPorIdFormat = jsonFormat1(RespostaBuscaPedidoSucesso)
   implicit val respostaClienteBuscarPorIdFormat = jsonFormat1(RespostaBuscaClienteSucesso)
+  implicit val respostaConsultaDeEstoque = jsonFormat2(RespostaConsultaEstoque)
 
 
 }

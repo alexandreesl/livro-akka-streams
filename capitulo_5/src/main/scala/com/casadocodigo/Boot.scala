@@ -8,7 +8,7 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
 import com.casadocodigo.route.{RotasDeClientes, RotasDePedidos, RotasDeProdutos}
-import com.casadocodigo.service.{ServicoDeClientes, ServicoDePedidos, ServicoDeProdutos}
+import com.casadocodigo.service.{ServicoDeClientes, ServicoDeEstoque, ServicoDePedidos, ServicoDeProdutos}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.ExecutionContextExecutor
@@ -30,6 +30,7 @@ object Boot extends App with RotasDeProdutos with RotasDePedidos with RotasDeCli
   val atorDeProdutos = typedSystem.systemActorOf(ServicoDeProdutos(), "ServicoDeProdutos")
   val atorDePedidos = typedSystem.systemActorOf(ServicoDePedidos(), "ServicoDePedidos")
   val atorDeClientes = typedSystem.systemActorOf(ServicoDeClientes(), "ServicoDeClientes")
+  val atorDeEstoque = typedSystem.systemActorOf(ServicoDeEstoque(), "ServicoDeEstoque")
 
   val route = rotasDeProdutos() ~ rotasDePedidos() ~ rotasDeClientes()
 
