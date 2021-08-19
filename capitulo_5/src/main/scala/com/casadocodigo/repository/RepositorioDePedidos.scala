@@ -2,7 +2,7 @@ package com.casadocodigo.repository
 
 import com.casadocodigo.Boot.executionContext
 import com.casadocodigo.repository.DBConnection.db
-import com.casadocodigo.repository.RepositorioDePedidos.{tabelaRelacionamentoProdutos, tabelaProdutos, tabela, tabelaClientes}
+import com.casadocodigo.repository.RepositorioDePedidos.{run, tabela, tabelaClientes, tabelaProdutos, tabelaRelacionamentoProdutos}
 import slick.basic.DatabasePublisher
 import slick.dbio.DBIO
 import slick.lifted.Tag
@@ -77,8 +77,9 @@ object RepositorioDePedidos extends DBConnection {
     run(tabela.filter(_.id === pedido.id).update(pedido))
   }
 
-  def remover(pedidoId: Long): Future[Int] = run {
-    tabela.filter(_.id === pedidoId).delete
+  def remover(pedidoId: Long): Future[Int] = {
+    run(tabela.filter(_.id === pedidoId).delete)
+    run(tabelaRelacionamentoProdutos.filter(_.pedidoId === pedidoId).delete)
   }
 
   def buscarPorId(pedidoId: Long): Future[DatabasePublisher[Pedido]] = Future {

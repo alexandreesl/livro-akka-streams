@@ -81,8 +81,9 @@ object RepositorioDeClientes extends DBConnection {
     run(tabela.filter(_.id === cliente.id).update(cliente))
   }
 
-  def remover(clienteId: Long): Future[Int] = run {
-    tabela.filter(_.id === clienteId).delete
+  def remover(clienteId: Long): Future[Int] = {
+    run(tabela.filter(_.id === clienteId).delete)
+    run(tabelaFilha.filter(_.clienteId === clienteId).delete)
   }
 
   def buscarPorId(clienteId: Long): Future[DatabasePublisher[Cliente]] = Future {
