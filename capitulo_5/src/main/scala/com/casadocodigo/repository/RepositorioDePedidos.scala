@@ -36,7 +36,7 @@ class PedidoProdutoSchema(tag: Tag) extends Table[PedidoProduto](tag, "pedido_pr
 
   def pedido = foreignKey("pedido_produto", pedidoId, tabela)(_.id)
 
-  def produto = foreignKey("produto_pedido", produtoId, tabelaProdutos)(_.id)
+  def produto = foreignKey("produto_pedido", produtoId, tabelaProdutos)(_.id, onDelete = ForeignKeyAction.Cascade, onUpdate = ForeignKeyAction.Cascade)
 
   def * = (pedidoId, produtoId, quantidade) <> (PedidoProduto.tupled, PedidoProduto.unapply)
 }
