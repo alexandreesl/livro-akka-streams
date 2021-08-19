@@ -1,6 +1,6 @@
 package com.casadocodigo.route
 
-import com.casadocodigo.repository.{Pedido, Produto}
+import com.casadocodigo.repository.{Cliente, Pedido, Produto}
 
 object Respostas {
 
@@ -9,5 +9,7 @@ object Respostas {
   case class RespostaBuscaProdutoSucesso(produto: List[Produto])
 
   case class RespostaBuscaPedidoSucesso(pedido: Pedido)
+
+  case class RespostaBuscaClienteSucesso(cliente: Cliente)
 
 }
