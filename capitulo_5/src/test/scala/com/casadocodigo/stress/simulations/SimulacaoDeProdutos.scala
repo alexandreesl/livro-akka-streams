@@ -12,7 +12,6 @@ trait SimulacaoDeProdutos extends UtilitarioDeNumeros {
       s"""{ "id":0,
          |  "descricao": "teste$generateLong",
          |  "preco": 1.23 }""".stripMargin)).asJson)
-    .pause(1)
     .exec(http("request_patch")
       .patch("/produto").body(StringBody(
       s"""{ "id":1,
