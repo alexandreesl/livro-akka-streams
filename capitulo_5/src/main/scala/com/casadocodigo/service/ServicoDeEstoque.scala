@@ -32,7 +32,7 @@ object ServicoDeEstoque extends SerializadorJSON {
     (_, mensagem) =>
       mensagem match {
         case ConsultarEstoque(produtoId, replyTo) =>
-          val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(uri = "https://run.mocky.io/v3/c65f1dd6-eb72-4cb6-8130-0426ba4f4ad0"))
+          val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(uri = s"http://localhost:3000/produto/${produtoId}"))
           responseFuture
             .onComplete {
               case Success(res) =>
