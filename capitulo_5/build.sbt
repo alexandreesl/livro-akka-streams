@@ -11,6 +11,7 @@ val slickVersion = "3.3.3"
 dockerExposedPorts ++= Seq(8080)
 
 enablePlugins(JavaAppPackaging)
+enablePlugins(GatlingPlugin)
 
 mainClass in Compile := Some("com.casadocodigo.Boot")
 
@@ -34,4 +35,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % slickVersion,
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
   "org.postgresql" % "postgresql" % "42.2.23"
+)
+
+libraryDependencies ++= Seq(
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.6.1" % "test",
+  "io.gatling" % "gatling-test-framework"    % "3.6.1" % "test"
 )
