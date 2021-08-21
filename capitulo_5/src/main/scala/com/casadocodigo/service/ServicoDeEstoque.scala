@@ -4,7 +4,7 @@ import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.event.slf4j.Logger
 import akka.http.scaladsl.Http
-import com.casadocodigo.Boot.{executionContext, system}
+import com.casadocodigo.Boot.{executionContext, system, config}
 import akka.http.scaladsl.model._
 import akka.util.ByteString
 import com.casadocodigo.route.SerializadorJSON
@@ -32,7 +32,7 @@ object ServicoDeEstoque extends SerializadorJSON {
     (_, mensagem) =>
       mensagem match {
         case ConsultarEstoque(produtoId, replyTo) =>
-          val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(uri = s"http://localhost:3000/produto/${produtoId}"))
+          val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(uri = s"http://${config.getString("url")}:3000/produto/${produtoId}"))
           responseFuture
             .onComplete {
               case Success(res) =>
