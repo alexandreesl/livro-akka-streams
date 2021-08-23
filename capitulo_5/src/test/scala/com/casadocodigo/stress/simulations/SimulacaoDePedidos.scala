@@ -6,6 +6,22 @@ import io.gatling.http.Predef._
 
 trait SimulacaoDePedidos extends UtilitarioDeNumeros {
 
+  val cenarioPrimeiroPedido: ScenarioBuilder = scenario("CenarioDocenarioPrimeiroPedido")
+    .exec(http("request_post")
+      .post("/pedido").body(StringBody(
+      s"""{
+         |  "pedido": {
+         |    "descricao": "pedido 1",
+         |    "clienteId": 1
+         |  },
+         |  "produtos": [
+         |    {
+         |      "produtoId": 1,
+         |      "quantidade": 3
+         |    }
+         |    ]
+         |}""".stripMargin)).asJson)
+
   val cenarioPedido: ScenarioBuilder = scenario("CenarioDePedidos")
     .exec(http("request_post")
       .post("/pedido").body(StringBody(
