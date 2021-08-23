@@ -24,7 +24,7 @@ trait SimulacaoDePedidos extends UtilitarioDeNumeros {
          |    }
          |    ]
          |}""".stripMargin)).asJson)
-    .pause(1 second)
+    .pause(2 second)
 
   val cenarioPedido: ScenarioBuilder = scenario("CenarioDePedidos")
     .exec(http("request_post")
