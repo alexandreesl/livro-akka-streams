@@ -11,7 +11,7 @@ class ExecutorDeSimulacoes extends Simulation with SimulacaoDeProdutos with Simu
     cenarioPrimeiroCliente.inject(atOnceUsers(1)),
     cenarioPrimeiroPedido.inject(atOnceUsers(1)),
     cenarioCliente.inject(rampUsers(300) during (2 minutes)),
-    cenarioPedido.inject(constantUsersPerSec(50) during (5 minutes))
+    cenarioPedido.inject(constantUsersPerSec(50) during (4 minutes))
   ).protocols(protocolo)
 
 }

@@ -4,6 +4,9 @@ import io.gatling.core.Predef._
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 
+import scala.concurrent.duration.DurationInt
+import scala.language.postfixOps
+
 trait SimulacaoDePedidos extends UtilitarioDeNumeros {
 
   val cenarioPrimeiroPedido: ScenarioBuilder = scenario("CenarioDocenarioPrimeiroPedido")
@@ -21,6 +24,7 @@ trait SimulacaoDePedidos extends UtilitarioDeNumeros {
          |    }
          |    ]
          |}""".stripMargin)).asJson)
+    .pause(1 second)
 
   val cenarioPedido: ScenarioBuilder = scenario("CenarioDePedidos")
     .exec(http("request_post")
