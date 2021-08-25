@@ -17,7 +17,10 @@ object Boot extends App {
 
   private def primeiraStream = {
     val source: Source[Int, NotUsed] = Source(1 to 100)
-    val done: Future[Done] = source.runForeach(i => println(i))
+    val done: Future[Done] = source
+      .filter(i => i % 2 == 0)
+      .map(i => f"sou o numero $i")
+      .runForeach(i => println(i))
 
     done.onComplete(_ => println("terminando a execução!"))
   }
