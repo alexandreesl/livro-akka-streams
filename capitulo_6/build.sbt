@@ -23,7 +23,8 @@ libraryDependencies ++= Seq(
 
 // dependencias do Alpakka
 libraryDependencies ++= Seq(
-  "com.lightbend.akka" %% "akka-stream-alpakka-file" % "3.0.3"
+  "com.lightbend.akka" %% "akka-stream-alpakka-file" % "3.0.3",
+  "com.typesafe.akka" %% "akka-stream-kafka" % "2.1.1"
 )
 
 

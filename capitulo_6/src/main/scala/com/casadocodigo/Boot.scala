@@ -3,9 +3,13 @@ package com.casadocodigo
 
 import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
+import akka.kafka.ProducerSettings
+import akka.kafka.scaladsl.Producer
 import akka.stream.alpakka.file.DirectoryChange
 import akka.stream.alpakka.file.scaladsl.{Directory, DirectoryChangesSource, FileTailSource}
 import akka.stream.scaladsl.Source
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringSerializer
 
 import java.io.FileNotFoundException
 import java.nio.file.{FileSystems, Path}
@@ -19,16 +23,11 @@ object Boot extends App {
   implicit val system: ActorSystem = ActorSystem("AkkaStreams")
   implicit val ec: ExecutionContextExecutor = system.dispatcher
 
-  /*implicit val personJsonWriter: JsonWriter[Map[String, ByteString]] = (input: Map[String, ByteString]) => {
-    JsObject(
-      input.map({
-        case (k: String, v: ByteString) =>
-          (k, JsString(v.utf8String))
-      })
-    )
-  }*/
-
   //primeiraStream()
+
+  val kafkaProducerSettings =
+    ProducerSettings.create(system, new StringSerializer(), new StringSerializer())
+      .withBootstrapServers("localhost:9092")
 
   val fs = FileSystems.getDefault
   private val dir = "./input_dir"
@@ -37,13 +36,17 @@ object Boot extends App {
   diretorioInicial.runForeach {
     path =>
       obterVerificadorDeArquivoDeletado(path)
-      obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true).runForeach(linha => println(linha))
+      obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
+        .map(value => new ProducerRecord[String, String]("contas", value))
+        .runWith(Producer.plainSink(kafkaProducerSettings))
   }
   mudancasNoDiretorio.runForeach {
     case (path, change) =>
       change match {
         case DirectoryChange.Creation => obterVerificadorDeArquivoDeletado(path)
-          obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true).runForeach(linha => println(linha))
+          obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
+            .map(value => new ProducerRecord[String, String]("contas", value))
+            .runWith(Producer.plainSink(kafkaProducerSettings))
       }
   }
 
