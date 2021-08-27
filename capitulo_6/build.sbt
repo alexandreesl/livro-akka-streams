@@ -12,7 +12,7 @@ mainClass in Compile := Some("com.casadocodigo.Boot")
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
+  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test
 )
 
 // dependencias de logging
@@ -20,3 +20,10 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion,
   "ch.qos.logback" % "logback-classic" % "1.2.3"
 )
+
+// dependencias do Alpakka
+libraryDependencies ++= Seq(
+  "com.lightbend.akka" %% "akka-stream-alpakka-file" % "3.0.3"
+)
+
+

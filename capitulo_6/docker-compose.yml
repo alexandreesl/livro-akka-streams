@@ -1,20 +1,14 @@
 version: '3.9'
 services:
-  db:
-    image: postgres
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
     ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: teste
-      POSTGRES_DB: ecommerce
-  api:
-    image: akka-api:1.0
-    tty: true
+      - 2181:2181
+  kafka:
+    image: wurstmeister/kafka:2.12-2.5.0
     ports:
-      - "8080:8080"
+      - 9092:9092
     environment:
-      DB_HOST: db
-      DB_PASS: teste
-      ENVIRONMENT: prod
-    depends_on:
-      - db
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_CREATE_TOPICS: "contas:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
