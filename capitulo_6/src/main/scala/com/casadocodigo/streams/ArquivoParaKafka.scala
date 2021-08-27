@@ -37,7 +37,8 @@ object ArquivoParaKafka {
     mudancasNoDiretorio.runForeach {
       case (path, change) =>
         change match {
-          case DirectoryChange.Creation => obterVerificadorDeArquivoDeletado(path)
+          case DirectoryChange.Creation =>
+            obterVerificadorDeArquivoDeletado(path)
             obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
               .map(value => new ProducerRecord[String, String]("contas", value))
               .runWith(Producer.plainSink(kafkaProducerSettings))
