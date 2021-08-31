@@ -5,6 +5,7 @@ version := "1.0"
 
 scalaVersion := "2.13.6"
 val AkkaVersion = "2.6.15"
+val slickVersion = "3.3.3"
 
 mainClass in Compile := Some("com.casadocodigo.Boot")
 
@@ -24,7 +25,12 @@ libraryDependencies ++= Seq(
 // dependencias do Alpakka
 libraryDependencies ++= Seq(
   "com.lightbend.akka" %% "akka-stream-alpakka-file" % "3.0.3",
-  "com.typesafe.akka" %% "akka-stream-kafka" % "2.1.1"
+  "com.typesafe.akka" %% "akka-stream-kafka" % "2.1.1",
+  "com.lightbend.akka" %% "akka-stream-alpakka-slick" % "3.0.3",
+  "com.lightbend.akka" %% "akka-stream-alpakka-csv" % "3.0.3"
 )
 
-
+// dependencias de banco
+libraryDependencies ++= Seq(
+  "org.postgresql" % "postgresql" % "42.2.23"
+)

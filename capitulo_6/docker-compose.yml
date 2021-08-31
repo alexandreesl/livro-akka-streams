@@ -14,3 +14,12 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     depends_on:
       - zookeeper
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: teste
+      POSTGRES_DB: ecommerce
+    depends_on:
+      - kafka

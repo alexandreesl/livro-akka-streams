@@ -6,7 +6,7 @@ import akka.kafka.scaladsl.Producer
 import akka.stream.alpakka.file.DirectoryChange
 import akka.stream.alpakka.file.scaladsl.{Directory, DirectoryChangesSource, FileTailSource}
 import akka.stream.scaladsl.Source
-import com.casadocodigo.Boot.system
+import com.casadocodigo.Boot.{system, config}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
@@ -19,7 +19,7 @@ object ArquivoParaKafka {
 
   private val kafkaProducerSettings =
     ProducerSettings.create(system, new StringSerializer(), new StringSerializer())
-      .withBootstrapServers("localhost:9092")
+      .withBootstrapServers(config.getString("bootstrapServers"))
 
   private val sistemaDeArquivos = FileSystems.getDefault
   private val diretorio = "./input_dir"
