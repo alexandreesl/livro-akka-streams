@@ -7,7 +7,8 @@ val AkkaVersion = "2.6.15"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test
+  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
+  "org.scalatest" %% "scalatest" % "3.2.9" % Test
 )
 
 // dependencias de logging
