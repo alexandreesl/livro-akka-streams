@@ -6,6 +6,7 @@ version := "1.0"
 scalaVersion := "2.13.6"
 val AkkaVersion = "2.6.15"
 val slickVersion = "3.3.3"
+val akkaHttpVersion = "10.2.6"
 
 mainClass in Compile := Some("com.casadocodigo.Boot")
 
@@ -13,6 +14,8 @@ mainClass in Compile := Some("com.casadocodigo.Boot")
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
+  "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+  "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test
 )
 

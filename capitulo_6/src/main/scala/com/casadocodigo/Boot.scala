@@ -3,7 +3,7 @@ package com.casadocodigo
 
 import akka.actor.ActorSystem
 import akka.stream.alpakka.slick.scaladsl.SlickSession
-import com.casadocodigo.streams.{ArquivoParaKafka, KafkaParaBanco, PrimeiraStream}
+import com.casadocodigo.streams.{ArquivoParaKafka, KafkaParaAPIs, KafkaParaBanco, PrimeiraStream}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.ExecutionContextExecutor
@@ -24,5 +24,6 @@ object Boot extends App {
   PrimeiraStream.primeiraStream()
   ArquivoParaKafka.iniciarStreams()
   KafkaParaBanco.iniciarStreams()
+  KafkaParaAPIs.iniciarStreams()
 
 }
