@@ -28,12 +28,25 @@ class StoppableActorSpec extends AnyFlatSpec with BeforeAndAfterAll with should.
 
   }
 
-  "O ator paravel" should "processar mensagens de finalizacao e encerrar" in {
+  "O ator paravel" should "processar mensagens de finalizacao" in {
 
     LoggingTestKit.info(s"finalizando o processamento!").expect {
       ator ! MensagemFinalizar()
     }
 
+  }
+
+  "O ator paravel" should "processar mensagens de finalizacao e encerrar" in {
+
+    testador.stop(ator)
+    val outroAtor = testador.spawn(StoppableActor.behavior(), "OtherStoppableActor")
+    val recebedorDeadLetter = testador.createDeadLetterProbe()
+
+    LoggingTestKit.info(s"finalizando o processamento!").expect {
+      outroAtor ! MensagemFinalizar()
+    }
+
+    recebedorDeadLetter.expectTerminated(outroAtor)
   }
 
 }
