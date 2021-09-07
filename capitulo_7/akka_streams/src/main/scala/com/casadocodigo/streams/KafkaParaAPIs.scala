@@ -1,83 +1,82 @@
 package com.casadocodigo.streams
 
+import akka.NotUsed
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest}
+import akka.http.scaladsl.model._
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
-import akka.stream.{ActorAttributes, FlowShape, Supervision}
 import akka.stream.alpakka.csv.scaladsl.{CsvParsing, CsvToMap}
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Sink, Zip}
+import akka.stream.{ActorAttributes, FlowShape, Supervision}
 import akka.util.ByteString
 import com.casadocodigo.Boot.{config, system}
 import com.casadocodigo.streams.KafkaParaBanco.Conta
-import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
 import org.apache.kafka.common.serialization.StringDeserializer
 import spray.json._
 
 import java.nio.charset.StandardCharsets
+import scala.concurrent.Future
 import scala.language.postfixOps
 
 object KafkaParaAPIs extends SerializadorJSON {
 
+  trait ChamadorHttp {
+    def chamarHttp(request: HttpRequest): Future[HttpResponse] = {
+      Http().singleRequest(request)
+    }
+  }
+
+  class ChamadorHttpPadrao extends ChamadorHttp
+
   private val decider: Supervision.Decider = _ => Supervision.Restart
 
-  private val consumerSettings =
-    ConsumerSettings(system, new StringDeserializer, new StringDeserializer)
-      .withBootstrapServers(config.getString("bootstrapServers"))
-      .withGroupId("grupoAPIs")
-      .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-      .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
-      .withProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "5000")
+  private def grafo(executorChamadaHttp: ChamadorHttp):
+  Flow[Conta, (Int, Int), NotUsed] = Flow.fromGraph(GraphDSL.create() { implicit builder =>
 
-  def iniciarStreams(): Unit = {
+    import GraphDSL.Implicits._
 
-    val grafo = Flow.fromGraph(GraphDSL.create() { implicit builder =>
+    val difusorMensagemKafka = builder.add(Broadcast[Conta](2))
+    val juntorMensagemsAPIs = builder.add(Zip[Int, Int])
 
-      import GraphDSL.Implicits._
+    val enviaParaFiscal = Flow[Conta].mapAsync(1)(
+      msg => {
+        println(s"processando a conta ${msg.toJson.compactPrint} para o fiscal")
+        executorChamadaHttp.chamarHttp(HttpRequest(method = HttpMethods.POST,
+          uri = s"http://${config.getString("url")}:3000/fiscal",
+          entity = HttpEntity(ContentTypes.`application/json`, msg.toJson.compactPrint)))
 
-      val difusorMensagemKafka = builder.add(Broadcast[Conta](2))
-      val juntorMensagemsAPIs = builder.add(Zip[Int, Int])
+      }
+    ).map(
+      resposta => {
+        println(s"resposta do fiscal: $resposta")
+        resposta.status.intValue()
+      }
+    )
 
-      val enviaParaFiscal = Flow[Conta].mapAsync(1)(
-        msg => {
-          println(s"processando a conta ${msg.toJson.compactPrint} para o fiscal")
-          Http().singleRequest(HttpRequest(method = HttpMethods.POST,
-            uri = s"http://${config.getString("url")}:3000/fiscal",
-            entity = HttpEntity(ContentTypes.`application/json`, msg.toJson.compactPrint)))
+    val enviaParaCredito = Flow[Conta].mapAsync(1)(
+      msg => {
+        println(s"processando a conta ${msg.toJson.compactPrint} para o credito")
+        executorChamadaHttp.chamarHttp(HttpRequest(method = HttpMethods.POST,
+          uri = s"http://${config.getString("url")}:3000/credito",
+          entity = HttpEntity(ContentTypes.`application/json`, msg.toJson.compactPrint)))
+      }
+    ).map(
+      resposta => {
+        println(s"resposta do credito: $resposta")
+        resposta.status.intValue()
+      }
+    )
 
-        }
-      ).map(
-        resposta => {
-          println(s"resposta do fiscal: $resposta")
-          resposta.status.intValue()
-        }
-      )
+    difusorMensagemKafka ~> enviaParaFiscal ~> juntorMensagemsAPIs.in0
+    difusorMensagemKafka ~> enviaParaCredito ~> juntorMensagemsAPIs.in1
 
-      val enviaParaCredito = Flow[Conta].mapAsync(1)(
-        msg => {
-          println(s"processando a conta ${msg.toJson.compactPrint} para o credito")
-          Http().singleRequest(HttpRequest(method = HttpMethods.POST,
-            uri = s"http://${config.getString("url")}:3000/credito",
-            entity = HttpEntity(ContentTypes.`application/json`, msg.toJson.compactPrint)))
-        }
-      ).map(
-        resposta => {
-          println(s"resposta do credito: $resposta")
-          resposta.status.intValue()
-        }
-      )
+    FlowShape(difusorMensagemKafka.in, juntorMensagemsAPIs.out)
 
-      difusorMensagemKafka ~> enviaParaFiscal ~> juntorMensagemsAPIs.in0
-      difusorMensagemKafka ~> enviaParaCredito ~> juntorMensagemsAPIs.in1
+  })
 
-      FlowShape(difusorMensagemKafka.in, juntorMensagemsAPIs.out)
-
-    })
-    Consumer
-      .plainSource(
-        consumerSettings,
-        Subscriptions.topics("contas")
-      ).map(registro => {
+  def fluxoDeTransformacaoDados(executorChamadaHttp: ChamadorHttp = new ChamadorHttpPadrao()): Flow[ConsumerRecord[String, String], Unit, NotUsed] = {
+    Flow[ConsumerRecord[String, String]].map(registro => {
       val linhaComQuebraDelinha = registro.value() + "\n"
       ByteString(linhaComQuebraDelinha)
     }
@@ -89,7 +88,7 @@ object KafkaParaAPIs extends SerializadorJSON {
         println(s"processando a conta $conta")
         conta
       })
-      .via(grafo)
+      .via(grafo(executorChamadaHttp))
       .map(
         respostas =>
           if (respostas._1 != 200 || respostas._2 != 200) {
@@ -99,6 +98,23 @@ object KafkaParaAPIs extends SerializadorJSON {
           }
       )
       .withAttributes(ActorAttributes.supervisionStrategy(decider))
+  }
+
+  def iniciarStreams(): Unit = {
+    val consumerSettings =
+      ConsumerSettings(system, new StringDeserializer, new StringDeserializer)
+        .withBootstrapServers(config.getString("bootstrapServers"))
+        .withGroupId("grupoAPIs")
+        .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+        .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
+        .withProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "5000")
+
+    Consumer
+      .plainSource(
+        consumerSettings,
+        Subscriptions.topics("contas")
+      )
+      .via(fluxoDeTransformacaoDados())
       .runWith(Sink.ignore)
   }
 
