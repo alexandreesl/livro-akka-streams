@@ -31,6 +31,10 @@ class StoppableActorSpec extends AnyFlatSpec with BeforeAndAfterAll with should.
     LoggingTestKit.info(s"finalizando o processamento!").expect {
       ator ! MensagemFinalizar()
     }
+    val dado = "Testando!"
+    LoggingTestKit.info(s"processando a mensagem $dado!").expect {
+      ator ! MensagemProcessamento(dado)
+    }
 
   }
 
