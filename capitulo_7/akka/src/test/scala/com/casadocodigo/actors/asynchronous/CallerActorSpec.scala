@@ -1,13 +1,11 @@
 package com.casadocodigo.actors.asynchronous
 
-import akka.actor.testkit.typed.CapturedLogEvent
-import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit, LoggingTestKit}
-import com.casadocodigo.actors.{CallerActor, StoppableActor}
-import com.casadocodigo.actors.CallerActor.{MensagemChamadora, MensagemSolicitarFinalizacao, MensagemSolicitarProcessamento}
+import akka.actor.testkit.typed.scaladsl.{ActorTestKit, LoggingTestKit}
+import com.casadocodigo.actors.CallerActor
+import com.casadocodigo.actors.CallerActor.{MensagemSolicitarFinalizacao, MensagemSolicitarProcessamento}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import org.slf4j.event.Level
 
 class CallerActorSpec extends AnyFlatSpec with BeforeAndAfterAll with should.Matchers {
 

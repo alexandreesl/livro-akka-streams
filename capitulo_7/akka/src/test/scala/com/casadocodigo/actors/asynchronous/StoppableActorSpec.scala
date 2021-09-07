@@ -1,13 +1,11 @@
 package com.casadocodigo.actors.asynchronous
 
-import akka.actor.testkit.typed.CapturedLogEvent
-import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit, LoggingTestKit}
+import akka.actor.testkit.typed.scaladsl.{ActorTestKit, LoggingTestKit}
 import com.casadocodigo.actors.StoppableActor
-import com.casadocodigo.actors.StoppableActor.{ExcecaoDeFinalizacao, Mensagem, MensagemFinalizar, MensagemProcessamento}
+import com.casadocodigo.actors.StoppableActor.{MensagemFinalizar, MensagemProcessamento}
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
-import org.slf4j.event.Level
 
 
 class StoppableActorSpec extends AnyFlatSpec with BeforeAndAfterAll with should.Matchers {

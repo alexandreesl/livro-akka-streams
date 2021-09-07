@@ -16,7 +16,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test
+  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion % Test,
+  "org.scalatest" %% "scalatest" % "3.2.9" % Test
 )
 
 // dependencias de logging
