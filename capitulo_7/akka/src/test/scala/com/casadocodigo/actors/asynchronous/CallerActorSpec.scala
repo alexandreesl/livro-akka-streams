@@ -15,7 +15,7 @@ class CallerActorSpec extends AnyFlatSpec with BeforeAndAfterAll with should.Mat
 
   override def afterAll(): Unit = testador.shutdownTestKit()
 
-  "O ator paravel" should "processar mensagens de processamento" in {
+  "O ator chamador" should "processar mensagens de processamento" in {
 
     val dado = "Testando!"
 
@@ -25,7 +25,7 @@ class CallerActorSpec extends AnyFlatSpec with BeforeAndAfterAll with should.Mat
 
   }
 
-  "O ator paravel" should "processar mensagens de finalizacao e encerrar" in {
+  "O ator chamador" should "processar mensagens de finalizacao e encerrar" in {
 
     LoggingTestKit.info(s"solicitando a finalização do processamento!").expect {
       ator ! MensagemSolicitarFinalizacao()

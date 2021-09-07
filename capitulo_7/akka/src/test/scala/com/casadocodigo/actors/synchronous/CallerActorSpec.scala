@@ -10,7 +10,7 @@ import org.slf4j.event.Level
 
 class CallerActorSpec extends AnyFlatSpec with should.Matchers {
 
-  "O ator paravel" should "processar mensagens de processamento" in {
+  "O ator chamador" should "processar mensagens de processamento" in {
 
     val testador: BehaviorTestKit[MensagemChamadora] = BehaviorTestKit[MensagemChamadora](CallerActor.apply())
     val dado = "Testando!"
@@ -22,7 +22,7 @@ class CallerActorSpec extends AnyFlatSpec with should.Matchers {
 
   }
 
-  "O ator paravel" should "processar mensagens de finalizacao e encerrar" in {
+  "O ator chamador" should "processar mensagens de finalizacao e encerrar" in {
 
     val testador: BehaviorTestKit[MensagemChamadora] = BehaviorTestKit[MensagemChamadora](CallerActor.apply())
 
