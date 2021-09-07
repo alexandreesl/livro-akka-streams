@@ -6,7 +6,7 @@ import akka.kafka.scaladsl.Producer
 import akka.stream.alpakka.file.DirectoryChange
 import akka.stream.alpakka.file.scaladsl.{Directory, DirectoryChangesSource, FileTailSource}
 import akka.stream.scaladsl.Source
-import com.casadocodigo.Boot.{system, config}
+import com.casadocodigo.Boot.{config, system}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
@@ -17,33 +17,41 @@ import scala.language.postfixOps
 
 object ArquivoParaKafka {
 
-  private val kafkaProducerSettings =
-    ProducerSettings.create(system, new StringSerializer(), new StringSerializer())
-      .withBootstrapServers(config.getString("bootstrapServers"))
-
   private val sistemaDeArquivos = FileSystems.getDefault
   private val diretorio = "./input_dir"
   private val mudancasNoDiretorio = DirectoryChangesSource(sistemaDeArquivos.getPath(diretorio), pollInterval = 1 second, maxBufferSize = 1000)
-  private val diretorioInicial: Source[Path, NotUsed] = Directory.ls(sistemaDeArquivos.getPath(diretorio))
-
-  def iniciarStreams(): Unit = {
-    diretorioInicial.runForeach {
-      path =>
-        obterVerificadorDeArquivoDeletado(path)
+    .filter {
+      case (_, change) =>
+        change == DirectoryChange.Creation
+    }
+    .map {
+      case (path, _) =>
         obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
           .map(value => new ProducerRecord[String, String]("contas", value))
-          .runWith(Producer.plainSink(kafkaProducerSettings))
     }
-    mudancasNoDiretorio.runForeach {
-      case (path, change) =>
-        change match {
-          case DirectoryChange.Creation =>
-            obterVerificadorDeArquivoDeletado(path)
-            obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
-              .map(value => new ProducerRecord[String, String]("contas", value))
-              .runWith(Producer.plainSink(kafkaProducerSettings))
-        }
-    }
+  private[streams] val diretorioInicial: Source[Source[ProducerRecord[String, String], NotUsed], NotUsed] = Directory.ls(sistemaDeArquivos.getPath(diretorio))
+    .map(path =>
+      obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
+        .map(value => new ProducerRecord[String, String]("contas", value))
+    )
+
+
+  def iniciarStreams(): Unit = {
+    val kafkaProducerSettings =
+      ProducerSettings.create(system, new StringSerializer(), new StringSerializer())
+        .withBootstrapServers(config.getString("bootstrapServers"))
+
+    diretorioInicial
+      .runForeach(record =>
+        record.runWith(Producer.plainSink(kafkaProducerSettings)
+        )
+      )
+
+    mudancasNoDiretorio
+      .runForeach(record =>
+        record.runWith(Producer.plainSink(kafkaProducerSettings)
+        )
+      )
   }
 
 

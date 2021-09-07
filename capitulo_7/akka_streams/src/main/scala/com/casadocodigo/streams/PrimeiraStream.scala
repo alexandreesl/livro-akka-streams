@@ -1,21 +1,19 @@
 package com.casadocodigo.streams
 
-import akka.{Done, NotUsed}
+import akka.NotUsed
 import akka.stream.scaladsl.Source
 import com.casadocodigo.Boot.{ec, system}
 
-import scala.concurrent.Future
-
 object PrimeiraStream {
 
-  def primeiraStream(): Unit = {
-    val source: Source[Int, NotUsed] = Source(1 to 100)
-    val done: Future[Done] = source
-      .filter(i => i % 2 == 0)
-      .map(i => f"sou o numero $i")
-      .runForeach(i => println(i))
+  private val source: Source[Int, NotUsed] = Source(1 to 100)
+  private[streams] val done: Source[String, NotUsed] = source
+    .filter(i => i % 2 == 0)
+    .map(i => f"sou o numero $i")
 
-    done.onComplete(_ => println("terminando a execução!"))
+  def primeiraStream(): Unit = {
+    done.runForeach(i => println(i))
+        .onComplete(_ => println("terminando a execução!"))
   }
 
 }
