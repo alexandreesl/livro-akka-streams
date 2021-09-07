@@ -29,7 +29,6 @@ object ArquivoParaKafka {
   def iniciarStreams(): Unit = {
     diretorioInicial.runForeach {
       path =>
-        obterVerificadorDeArquivoDeletado(path)
         obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
           .map(value => new ProducerRecord[String, String]("contas", value))
           .runWith(Producer.plainSink(kafkaProducerSettings))
@@ -38,7 +37,6 @@ object ArquivoParaKafka {
       case (path, change) =>
         change match {
           case DirectoryChange.Creation =>
-            obterVerificadorDeArquivoDeletado(path)
             obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
               .map(value => new ProducerRecord[String, String]("contas", value))
               .runWith(Producer.plainSink(kafkaProducerSettings))
