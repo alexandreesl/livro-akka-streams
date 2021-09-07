@@ -11,6 +11,7 @@ import akka.stream.{ActorAttributes, FlowShape, Supervision}
 import akka.util.ByteString
 import com.casadocodigo.Boot.{config, system}
 import com.casadocodigo.streams.KafkaParaBanco.Conta
+import com.typesafe.config.Config
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
 import org.apache.kafka.common.serialization.StringDeserializer
 import spray.json._
@@ -21,17 +22,14 @@ import scala.language.postfixOps
 
 object KafkaParaAPIs extends SerializadorJSON {
 
-  trait ChamadorHttp {
-    def chamarHttp(request: HttpRequest): Future[HttpResponse] = {
-      Http().singleRequest(request)
-    }
+  private def chamarHttp(request: HttpRequest): Future[HttpResponse] = {
+    Http().singleRequest(request)
   }
 
-  class ChamadorHttpPadrao extends ChamadorHttp
 
   private val decider: Supervision.Decider = _ => Supervision.Restart
 
-  private def grafo(executorChamadaHttp: ChamadorHttp):
+  private def grafo(executorChamadaHttp: HttpRequest => Future[HttpResponse])(implicit config: Config):
   Flow[Conta, (Int, Int), NotUsed] = Flow.fromGraph(GraphDSL.create() { implicit builder =>
 
     import GraphDSL.Implicits._
@@ -42,7 +40,7 @@ object KafkaParaAPIs extends SerializadorJSON {
     val enviaParaFiscal = Flow[Conta].mapAsync(1)(
       msg => {
         println(s"processando a conta ${msg.toJson.compactPrint} para o fiscal")
-        executorChamadaHttp.chamarHttp(HttpRequest(method = HttpMethods.POST,
+        executorChamadaHttp(HttpRequest(method = HttpMethods.POST,
           uri = s"http://${config.getString("url")}:3000/fiscal",
           entity = HttpEntity(ContentTypes.`application/json`, msg.toJson.compactPrint)))
 
@@ -57,7 +55,7 @@ object KafkaParaAPIs extends SerializadorJSON {
     val enviaParaCredito = Flow[Conta].mapAsync(1)(
       msg => {
         println(s"processando a conta ${msg.toJson.compactPrint} para o credito")
-        executorChamadaHttp.chamarHttp(HttpRequest(method = HttpMethods.POST,
+        executorChamadaHttp(HttpRequest(method = HttpMethods.POST,
           uri = s"http://${config.getString("url")}:3000/credito",
           entity = HttpEntity(ContentTypes.`application/json`, msg.toJson.compactPrint)))
       }
@@ -75,7 +73,8 @@ object KafkaParaAPIs extends SerializadorJSON {
 
   })
 
-  def fluxoDeTransformacaoDados(executorChamadaHttp: ChamadorHttp = new ChamadorHttpPadrao()): Flow[ConsumerRecord[String, String], Unit, NotUsed] = {
+  def fluxoDeTransformacaoDados(executorChamadaHttp: HttpRequest => Future[HttpResponse] = chamarHttp)
+                               (implicit config: Config): Flow[ConsumerRecord[String, String], Unit, NotUsed] = {
     Flow[ConsumerRecord[String, String]].map(registro => {
       val linhaComQuebraDelinha = registro.value() + "\n"
       ByteString(linhaComQuebraDelinha)
