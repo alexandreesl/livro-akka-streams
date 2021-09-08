@@ -29,14 +29,14 @@ class KafkaParaAPIsSpec extends AnyFlatSpec with BeforeAndAfterAll with should.M
 
   "A stream do kafka para APIs" should "ler dados do kafka para envio para as APIs" in {
 
-    val falseador = mockFunction[HttpRequest, Future[HttpResponse]]
+    val mock = mockFunction[HttpRequest, Future[HttpResponse]]
 
-    falseador expects (*) returning Future[HttpResponse] {
+    mock expects (*) returning Future[HttpResponse] {
       HttpResponse(status = StatusCodes.OK, entity = "{\n  \"success\": true\n}")
     } repeat 4
 
     val (entrada, saida) = TestSource.probe[ConsumerRecord[String, String]]
-      .via(fluxoDeTransformacaoDados(falseador))
+      .via(fluxoDeTransformacaoDados(mock))
       .toMat(TestSink[Unit]())(Keep.both).run()
 
 
