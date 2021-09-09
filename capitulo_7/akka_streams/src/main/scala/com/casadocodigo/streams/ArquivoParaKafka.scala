@@ -5,8 +5,10 @@ import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.alpakka.file.DirectoryChange
 import akka.stream.alpakka.file.scaladsl.{Directory, DirectoryChangesSource, FileTailSource}
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Flow, Source}
 import com.casadocodigo.Boot.{config, system}
+import com.casadocodigo.streams.KafkaParaBanco.Conta
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
@@ -27,13 +29,17 @@ object ArquivoParaKafka {
     .map {
       case (path, _) =>
         obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
-          .map(value => new ProducerRecord[String, String]("contas", value))
+          .via(fluxoDeTransformacaoDados())
     }
   private[streams] val diretorioInicial: Source[Source[ProducerRecord[String, String], NotUsed], NotUsed] = Directory.ls(sistemaDeArquivos.getPath(diretorio))
     .map(path =>
       obterLeitorDeArquivo(path).merge(obterVerificadorDeArquivoDeletado(path), eagerComplete = true)
-        .map(value => new ProducerRecord[String, String]("contas", value))
+        .via(fluxoDeTransformacaoDados())
     )
+
+  def fluxoDeTransformacaoDados(): Flow[String, ProducerRecord[String, String], NotUsed] = {
+    Flow[String].map(value => new ProducerRecord[String, String]("contas", value))
+  }
 
 
   def iniciarStreams(): Unit = {

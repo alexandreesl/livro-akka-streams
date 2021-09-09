@@ -12,7 +12,6 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.language.postfixOps
 
@@ -31,7 +30,7 @@ class KafkaParaAPIsSpec extends AnyFlatSpec with BeforeAndAfterAll with should.M
 
     val mock = mockFunction[HttpRequest, Future[HttpResponse]]
 
-    mock expects (*) returning Future[HttpResponse] {
+    mock expects * returning Future[HttpResponse] {
       HttpResponse(status = StatusCodes.OK, entity = "{\n  \"success\": true\n}")
     } repeat 4
 
