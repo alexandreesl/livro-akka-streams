@@ -115,7 +115,7 @@ object Application {
   private def multiThread = {
     println(s"executando (inicio do processamento) ${LocalDateTime.now}")
 
-    val stack = mutable.Stack[Int]()
+    @volatile var stack = mutable.Stack[Int]()
     stack.pushAll(List.range(1, 9990000))
 
     val implementacao: Runnable = () => {
