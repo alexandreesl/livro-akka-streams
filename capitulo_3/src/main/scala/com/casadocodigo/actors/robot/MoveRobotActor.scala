@@ -8,16 +8,16 @@ object MoveRobotActor {
   def apply(): Behavior[ComandoDeMovimento] = Behaviors.receive {
     (contexto, mensagem) =>
       mensagem match {
-        case MoverParaFrente() =>
+        case MoverParaFrente =>
           contexto.log.info(s"Robô movido para a frente com sucesso!")
           Behaviors.same
-        case MoverParaTras() =>
+        case MoverParaTras =>
           contexto.log.info(s"Robô movido para trás com sucesso!")
           Behaviors.same
-        case MoverParaEsquerda() =>
+        case MoverParaEsquerda =>
           contexto.log.info(s"Robô movido para a esquerda com sucesso!")
           Behaviors.same
-        case MoverParaDireita() =>
+        case MoverParaDireita =>
           contexto.log.info(s"Robô movido para a direita com sucesso!")
           Behaviors.same
 

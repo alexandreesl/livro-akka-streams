@@ -23,15 +23,15 @@ object Application {
   private def exemploRobo(system: ActorSystem[NotUsed]) = {
     val atorMovimentoDoRobo = system.systemActorOf(MoveRobotActor(), "MoveRobotActor")
     val atorColetorDoRobo = system.systemActorOf(CollectRobotActor(), "CollectRobotActor")
-    atorMovimentoDoRobo ! MoverParaFrente()
-    atorMovimentoDoRobo ! MoverParaTras()
-    atorMovimentoDoRobo ! MoverParaEsquerda()
-    atorMovimentoDoRobo ! MoverParaFrente()
-    atorMovimentoDoRobo ! MoverParaDireita()
+    atorMovimentoDoRobo ! MoverParaFrente
+    atorMovimentoDoRobo ! MoverParaTras
+    atorMovimentoDoRobo ! MoverParaEsquerda
+    atorMovimentoDoRobo ! MoverParaFrente
+    atorMovimentoDoRobo ! MoverParaDireita
 
     atorColetorDoRobo ! Coletar(Coleta(UUID.randomUUID(), Random.nextDouble()))
     atorColetorDoRobo ! Coletar(Coleta(UUID.randomUUID(), Random.nextDouble()))
-    atorColetorDoRobo ! IniciarTransmissao()
+    atorColetorDoRobo ! IniciarTransmissao
   }
 
   private def exemploSimples(system: ActorSystem[NotUsed]) = {

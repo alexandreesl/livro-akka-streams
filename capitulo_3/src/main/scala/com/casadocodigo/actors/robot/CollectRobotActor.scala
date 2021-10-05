@@ -17,7 +17,7 @@ object CollectRobotActor {
         (contexto, mensagem) =>
           mensagem match {
             case Coletar(_) =>
-              contexto.scheduleOnce(2 hours, contexto.self, IniciarTransmissao())
+              contexto.scheduleOnce(2 hours, contexto.self, IniciarTransmissao)
               if (buffer.isFull) {
                 contexto.log.info(s"limite de coletas atingido! Abortando operações!")
                 buffer.unstashAll(transmissor(refAtorDeTransmissao))
@@ -28,7 +28,7 @@ object CollectRobotActor {
                 contexto.log.info(s"amostra $mensagem coletada com sucesso!")
                 Behaviors.same
               }
-            case IniciarTransmissao() =>
+            case IniciarTransmissao =>
               buffer.unstashAll(transmissor(refAtorDeTransmissao))
               Behaviors.same
           }
