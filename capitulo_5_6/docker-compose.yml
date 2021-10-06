@@ -16,5 +16,3 @@ services:
       DB_HOST: db
       DB_PASS: teste
       ENVIRONMENT: prod
-    depends_on:
-      - db
