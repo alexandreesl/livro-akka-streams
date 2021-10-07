@@ -5,15 +5,14 @@ import akka.http.scaladsl.model.StatusCodes.BadRequest
 import akka.http.scaladsl.server.Directives.{as, complete, entity, failWith, onComplete, patch, path, post, _}
 import akka.http.scaladsl.server.Route
 import akka.stream.scaladsl.{Sink, Source}
-import com.casadocodigo.Boot.{atorDeClientes, config, scheduler, system, timeout}
+import com.casadocodigo.Boot.{atorDeClientes, executionContext, scheduler, system, timeout}
 import com.casadocodigo.repository.{Cliente, Endereco}
 import com.casadocodigo.route.Requisicoes.RequisicaoCliente
 import com.casadocodigo.route.Respostas.{RespostaBuscaClienteSucesso, RespostaSucesso}
-import com.casadocodigo.service.ServicoDeClientes.{MensagemAtualizarCliente, MensagemBuscarClientePorId, MensagemCriarCliente, MensagemRemoverCliente, RespostaGerenciamentoDeCliente}
 import com.casadocodigo.service.ServicoDeClientes
+import com.casadocodigo.service.ServicoDeClientes._
 
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
@@ -80,9 +79,13 @@ trait RotasDeClientes extends SerializadorJSON {
       onComplete(response) {
         case Success(response) => response match {
           case ServicoDeClientes.RespostaBuscaDeCliente(publicador) =>
-            complete(RespostaBuscaClienteSucesso(Await.result(
-              Source.fromPublisher(publicador)
-                .runWith(Sink.collection[Cliente, List[Cliente]]), config.getInt("timeout") seconds).head))
+            val data = Source.fromPublisher(publicador)
+              .runWith(Sink.collection[Cliente, List[Cliente]])
+              .map {
+                listaDeClientes =>
+                  RespostaBuscaClienteSucesso(listaDeClientes.head)
+              }
+            complete(data)
           case _ => complete(BadRequest)
         }
 

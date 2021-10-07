@@ -10,8 +10,8 @@ import com.casadocodigo.repository.{Pedido, PedidoProduto}
 import com.casadocodigo.route.Requisicoes.RequisicaoPedido
 import com.casadocodigo.route.Respostas.{RespostaBuscaPedidoSucesso, RespostaSucesso}
 import com.casadocodigo.service.ServicoDeEstoque.{ConsultarEstoque, RespostaConsultaEstoque}
-import com.casadocodigo.service.ServicoDePedidos.{MensagemAtualizarPedido, MensagemBuscarPedidoPorId, MensagemCriarPedido, MensagemRemoverPedido, RespostaGerenciamentoDePedido}
 import com.casadocodigo.service.ServicoDePedidos
+import com.casadocodigo.service.ServicoDePedidos._
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
@@ -112,9 +112,13 @@ trait RotasDePedidos extends SerializadorJSON {
       onComplete(response) {
         case Success(response) => response match {
           case ServicoDePedidos.RespostaBuscaDePedido(publicador) =>
-            complete(RespostaBuscaPedidoSucesso(Await.result(
-              Source.fromPublisher(publicador)
-                .runWith(Sink.collection[Pedido, List[Pedido]]), config.getInt("timeout") seconds).head))
+            val data = Source.fromPublisher(publicador)
+              .runWith(Sink.collection[Pedido, List[Pedido]])
+              .map {
+                listaDePedidos =>
+                  RespostaBuscaPedidoSucesso(listaDePedidos.head)
+              }
+            complete(data)
           case _ => complete(BadRequest)
         }
 
