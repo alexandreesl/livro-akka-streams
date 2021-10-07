@@ -14,6 +14,7 @@ import org.scalatest.matchers.should
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.language.postfixOps
+import scala.util.Try
 
 class KafkaParaAPIsSpec extends AnyFlatSpec with BeforeAndAfterAll with should.Matchers with MockFactory {
 
@@ -28,11 +29,11 @@ class KafkaParaAPIsSpec extends AnyFlatSpec with BeforeAndAfterAll with should.M
 
   "A stream do kafka para APIs" should "ler dados do kafka para envio para as APIs" in {
 
-    val mock = mockFunction[HttpRequest, Future[HttpResponse]]
+    val mock = mockFunction[HttpRequest, Future[Seq[Try[HttpResponse]]]]
 
-    mock expects * returning Future[HttpResponse] {
+    mock expects * returning Future(Seq(Try[HttpResponse] {
       HttpResponse(status = StatusCodes.OK, entity = "{\n  \"success\": true\n}")
-    } repeat 4
+    })) repeat 4
 
     val (entrada, saida) = TestSource.probe[ConsumerRecord[String, String]]
       .via(fluxoDeTransformacaoDados(mock))

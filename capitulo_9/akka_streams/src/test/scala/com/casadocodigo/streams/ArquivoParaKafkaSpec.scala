@@ -1,18 +1,14 @@
 package com.casadocodigo.streams
 
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.{Keep, Sink}
+import akka.stream.scaladsl.Keep
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import com.casadocodigo.streams.ArquivoParaKafka.fluxoDeTransformacaoDados
-import com.casadocodigo.streams.KafkaParaBanco.Conta
 
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.Await
 import scala.language.postfixOps
 
 class ArquivoParaKafkaSpec extends AnyFlatSpec with BeforeAndAfterAll with should.Matchers {

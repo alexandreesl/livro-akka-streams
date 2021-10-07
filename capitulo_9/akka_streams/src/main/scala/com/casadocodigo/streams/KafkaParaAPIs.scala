@@ -6,7 +6,7 @@ import akka.http.scaladsl.model._
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.alpakka.csv.scaladsl.{CsvParsing, CsvToMap}
-import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Sink, Zip}
+import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Sink, Source, Zip}
 import akka.stream.{ActorAttributes, FlowShape, Supervision}
 import akka.util.ByteString
 import com.casadocodigo.Boot.{config, system}
@@ -19,17 +19,21 @@ import spray.json._
 import java.nio.charset.StandardCharsets
 import scala.concurrent.Future
 import scala.language.postfixOps
+import scala.util.Try
 
 object KafkaParaAPIs extends SerializadorJSON {
 
-  private def chamarHttp(request: HttpRequest): Future[HttpResponse] = {
-    Http().singleRequest(request)
+  private def chamarHttp(request: HttpRequest): Future[Seq[Try[HttpResponse]]] = {
+    Source.single((request, NotUsed))
+      .via(Http().superPool[NotUsed]())
+      .map(_._1)
+      .runWith(Sink.takeLast(1))
   }
 
 
   private val decider: Supervision.Decider = _ => Supervision.Restart
 
-  private def grafo(executorChamadaHttp: HttpRequest => Future[HttpResponse])(implicit config: Config):
+  private def grafo(executorChamadaHttp: HttpRequest => Future[Seq[Try[HttpResponse]]])(implicit config: Config):
   Flow[Conta, (Int, Int), NotUsed] = Flow.fromGraph(GraphDSL.create() { implicit builder =>
 
     import GraphDSL.Implicits._
@@ -48,7 +52,7 @@ object KafkaParaAPIs extends SerializadorJSON {
     ).map(
       resposta => {
         println(s"resposta do fiscal: $resposta")
-        resposta.status.intValue()
+        resposta.head.get.status.intValue()
       }
     )
 
@@ -62,7 +66,7 @@ object KafkaParaAPIs extends SerializadorJSON {
     ).map(
       resposta => {
         println(s"resposta do credito: $resposta")
-        resposta.status.intValue()
+        resposta.head.get.status.intValue()
       }
     )
 
@@ -73,7 +77,7 @@ object KafkaParaAPIs extends SerializadorJSON {
 
   })
 
-  def fluxoDeTransformacaoDados(executorChamadaHttp: HttpRequest => Future[HttpResponse] = chamarHttp)
+  def fluxoDeTransformacaoDados(executorChamadaHttp: HttpRequest => Future[Seq[Try[HttpResponse]]] = chamarHttp)
                                (implicit config: Config): Flow[ConsumerRecord[String, String], Unit, NotUsed] = {
     Flow[ConsumerRecord[String, String]].map(registro => {
       val linhaComQuebraDelinha = registro.value() + "\n"
